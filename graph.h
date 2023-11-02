@@ -1,6 +1,11 @@
 #ifndef GRAPH_H
 #define GRAPH_H
 
+
+//Inicié el trabajo desde 0 para ver si podía arreglar la fuga de memoria y otros problemas 
+//Spoiler: no funcionó
+//Prácticamente todas las funciones son iguales pero con cambios en los nombres de variables
+
 typedef char vertex_id_t;
 
 typedef enum gt_enum {
@@ -8,68 +13,63 @@ typedef enum gt_enum {
     DIRECTED_GRAPH
 } graph_type_t;
 
-typedef struct vertex node_vertex;
-typedef struct arista node_awn;
+// Estructura para representar una arista
+typedef struct Edge {
+    struct Vertex *vertex;    // Apuntador al vértice relacionado por la arista
+    struct Edge *next;        // Apuntador a la siguiente arista en la lista
+} Edge;
 
-struct vertex{
-    char id;
-    struct vertex *next;
-    struct arista *awns;
-};
+// Estructura para representar un vértice
+typedef struct Vertex {
+    char id;                   // Identificador del vértice (puede ser una letra)
+    struct Edge *edge_list;    // Cabecera de la lista de aristas
+    struct Vertex *next;      // Apuntador al siguiente vértice
+} Vertex;
 
-struct arista{
-    int w;
-    struct arista *next;
-    struct vertex *rel;
-};
+// Estructura para representar el grafo
+typedef struct Graph {
+    int num_vertices;         // Número de vértices en el grafo
+    graph_type_t graph_type;  // Tipo de grafo (no dirigido o dirigido)
+    Vertex *vertex_list;      // Lista de vértices
+    int **adjacency_matrix;   // Matriz de adyacencia (solo para referencia)
+} Graph;
 
-typedef struct{
-    int type;
-    int num_vertices;
-    node_vertex *list;
-    int **adj_mat;
-}Graph;
+// Función para crear un grafo
+Graph* createGraph(graph_type_t type);
 
-//initialize the graph
-Graph *init_graph( graph_type_t type);
+// Función para liberar la memoria de un grafo y sus elementos
+void destroyGraph(Graph *graph);
 
-//initialize the matrix
-int **adjacency_matrix( int num_vertices);
+// Función para agregar un vértice al grafo
+void addVertex(Graph *graph, char id);
 
-//free matrix
-void free_mat(int **mat, int num_vertices);
+// Función para agregar una arista a un vértice
+void addEdgeToVertex(Vertex *vertex, Vertex *neighbor);
 
-//fre graph
-void free_graph(Graph *g);
+// Función para encontrar un vértice en el grafo por su identificador
+Vertex* findVertexByChar(Graph *graph, char id);
 
-//free edges list
-void free_awns( node_awn *a);
+//Crear matriz de adyacencia
+int **adj_mat( int num_vertices);
 
-//free vertex
-void free_vertex( node_vertex *v);
+//liberar vertices
+void free_vertex(Vertex *vertex);
 
-//function to create an edge
-node_awn* create_awn(int weight) ;
+//liberar aristas
+void free_edges(Edge *edge);
 
-// Function to create a vertex
-node_vertex* create_vertex(char id);
+//crear un vertice
+Vertex *create_Vertex(char id);
 
-// Function to add a vertex to the graph list
-void add_vertex_to_graph(Graph *g, node_vertex *new_vertex);
+//crear una arista
+Edge *create_Edge(Vertex *rel);
 
-
-// Function to add an edge to the adjacency list of a vertex
-void add_awn_to_vertex(node_vertex *vertex, node_awn *new_awn);
-
-// Function to generate an adjacency list from the graph matrix
-void adjacency_list_from_matrix(Graph *g);
-
-//finds a vertex by its id
-node_vertex* find_vertex(Graph *g, char id);
+//generar lista de adyacencias
+void create_list(Graph *g, int number_of_vertices);
 
 //main functions
-void read_adj_matrix();
-void print_adj_list();
+void read_adj_matrix(Graph *g);
+void print_adj_list(Graph *g);
 void print_dfs();
 void print_bfs();
 void add_vertex();

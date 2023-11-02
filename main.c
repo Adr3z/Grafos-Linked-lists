@@ -22,7 +22,7 @@ int main(void)  {
     graph_type_t graph_type;
     int number_of_operations;
     scanf("%u%d", &graph_type, &number_of_operations);
-    Graph *g = init_graph(graph_type);
+    Graph *g = createGraph(graph_type);
 #ifdef DEBUG
     printf("The graph type is %s\n", 
         graph_type == DIRECTED_GRAPH ? "Directed" : "Undirected");
@@ -35,7 +35,7 @@ int main(void)  {
                 read_adj_matrix(g);
             break;
             case PRINT_ADJ_LIST:   
-                print_adj_list();
+                print_adj_list(g);
             break;
             case ADD_VERTEX:    
                 add_vertex();
@@ -60,6 +60,6 @@ int main(void)  {
             break;
         }
     }
-    free_graph(g);
+    destroyGraph(g);
     return 0;
 }

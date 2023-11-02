@@ -2,190 +2,205 @@
 #include <stdlib.h>
 #include "graph.h"
 
-Graph *init_graph( graph_type_t type)
+Graph* createGraph(graph_type_t type) 
 {
-    Graph *g = (Graph*)malloc(sizeof(Graph));
-    g->type = type;
-    g->list = NULL;
-    g->adj_mat = NULL;
-    return g;
+    Graph* graph = (Graph*)malloc(sizeof(Graph));
+    graph->num_vertices = 0; 
+    graph->graph_type = type;
+    graph->vertex_list = NULL;
+    graph->adjacency_matrix = NULL;
+    return graph;
 }
 
-int **adjacency_matrix(int num_vertices) {
-    int **matrix = (int **)malloc(num_vertices * sizeof(int *));
-    if (matrix) {
-        for (int i = 0; i < num_vertices; i++) {
-            matrix[i] = (int *)malloc(num_vertices * sizeof(int));
-            if (matrix[i]) {
-                for (int j = 0; j < num_vertices; j++) {
-                    matrix[i][j] = 0;
-                }
-            } else {
-                // Manejar error de asignación de memoria para matriz[i]
-                // Puede ser necesario liberar la memoria previamente asignada.
-                for (int k = 0; k < i; k++) {
-                    free(matrix[k]);
-                }
-                free(matrix);
-                return NULL; // Devolver NULL en caso de error
-            }
-        }
-        return matrix;
-    }
-    return NULL; // Devolver NULL en caso de error
-}
-
-
-
-void free_mat(int **mat, int num_vertices)
+int **adj_mat(int num_vertices)
 {
+    int **mat = (int**)malloc(num_vertices * sizeof(int*));
     for(int i = 0; i < num_vertices; i++){
-        free( *(mat + i));
+        *(mat + i) = (int*)malloc(num_vertices * sizeof(int));
+        for(int j = 0; j < num_vertices; j++){
+            *(*(mat +i) + j) = 0;
+        }
     }
-    free(mat);
+    return mat;
 }
 
-void free_awns(node_awn *a)
+void free_vertex(Vertex *vertex)
 {
-    while( a != NULL){
-        node_awn *tmp = a;
-        a = a->next;
-        free(tmp);
+     while (vertex != NULL) {
+        Vertex* next_vertex = vertex->next;
+        Edge* current_edge = vertex->edge_list;
+        free_edges(current_edge);
+        free(vertex);
+        vertex = next_vertex;
     }
 }
 
-void free_vertex(node_vertex *v)
+void free_edges(Edge *edge)
 {
-    free_awns(v->awns);
-    free(v);
+    while (edge != NULL) {
+        Edge* next_edge = edge->next;
+        free(edge);
+        edge = next_edge;
+    }
 }
 
-void free_graph(Graph *g)
+void destroyGraph(Graph* graph) 
 {
-    node_vertex *current = g->list;
-    while (current != NULL) {
-        node_vertex *tmp = current;
-        current = current->next; 
-        free_vertex(tmp); 
+    if (graph == NULL) {
+        return;
     }
-    
-    free_mat(g->adj_mat, g->num_vertices);
-    free(g);
+    if (graph->adjacency_matrix != NULL) {
+        for (int i = 0; i < graph->num_vertices; i++) {
+            free(*(graph->adjacency_matrix + i));
+        }
+    }
+
+    // Liberar los vértices y las aristas
+    Vertex* current_vertex = graph->vertex_list;
+    free_vertex(current_vertex);
+
+    // Liberar la estructura del grafo
+    free(graph);
 }
 
-node_awn* create_awn(int weight) 
+Vertex* findVertexByChar(Graph* graph, char id) 
 {
-    node_awn *new_awn = (node_awn *)malloc(sizeof(node_awn));
-    if (new_awn) {
-        new_awn->w = weight;
-        new_awn->next = NULL;
-        new_awn->rel = NULL;
+    Vertex* current_vertex = graph->vertex_list;
+    while (current_vertex != NULL) {
+        if (current_vertex->id == id) {
+            return current_vertex;
+        }
+        current_vertex = current_vertex->next;
     }
-    return new_awn;
+    return NULL;  // El vértice no se encontró en el grafo
 }
 
-node_vertex* create_vertex(char id) 
+Vertex *create_Vertex(char id)
 {
-    node_vertex *new_vertex = (node_vertex *)malloc(sizeof(node_vertex));
-    if (new_vertex) {
-        new_vertex->id = id;
-        new_vertex->next = NULL;
-        new_vertex->awns = NULL;
-    }
+    Vertex* new_vertex = (Vertex*)malloc(sizeof(Vertex));
+    new_vertex->id = id;
+    new_vertex->edge_list = NULL;
+    new_vertex->next = NULL;
     return new_vertex;
 }
 
-void add_vertex_to_graph(Graph *g, node_vertex *new_vertex)
- {
-    new_vertex->next = g->list;
-    g->list = new_vertex;
-    g->num_vertices++;
-}
-
-void add_awn_to_vertex(node_vertex *vertex, node_awn *new_awn) 
+Edge *create_Edge(Vertex *rel)
 {
-    new_awn->next = vertex->awns;
-    vertex->awns = new_awn;
+    Edge* new_edge = (Edge*)malloc(sizeof(Edge));
+    new_edge->vertex = rel;
+    new_edge->next = NULL;
+    return new_edge;
 }
 
-node_vertex* find_vertex(Graph *g, char id) {
-    node_vertex* current = g->list;
-    
-    while (current != NULL) {
-        if (current->id == id) {
-            return current;
+void addEdgeToVertex(Vertex* vertex, Vertex* neighbor) 
+{
+
+     Edge* new_edge = create_Edge(neighbor);
+
+    // Agregar la arista al final de la lista de aristas del vértice
+    if (vertex->edge_list == NULL) {
+        vertex->edge_list = new_edge;
+    } else {
+        Edge* current_edge = vertex->edge_list;
+        while (current_edge->next != NULL) {
+            current_edge = current_edge->next;
         }
-        current = current->next;
+        current_edge->next = new_edge;
     }
-    
-    return NULL; 
 }
 
-void adjacency_list_from_matrix(Graph *g) {
-    int num_vertices = g->num_vertices;
-    g->list = NULL; 
+void addVertex(Graph* graph, char id) 
+{
+    Vertex* new_vertex = create_Vertex(id);
 
-    node_vertex **current_vertex = &(g->list);
-
-    for (int i = 0; i < num_vertices; i++) {
-        node_vertex *vertex = find_vertex(g, i + 'A'); 
-
-        if (vertex == NULL) {
-            continue;
+    // Agregar el vértice al final de la lista de vértices
+    if (graph->vertex_list == NULL) {
+        graph->vertex_list = new_vertex;
+    } else {
+        Vertex* current_vertex = graph->vertex_list;
+        while (current_vertex->next != NULL) {
+            current_vertex = current_vertex->next;
         }
+        current_vertex->next = new_vertex;
+    }
 
-        node_awn **current_awn = &(vertex->awns);
+    graph->num_vertices++;
+}
 
+void printMatrix(int** matrix, int num_vertices) 
+{
+    for (int i = 0; i < num_vertices; i++) {
         for (int j = 0; j < num_vertices; j++) {
-            if (*(*((g->adj_mat) + i) + j) != 0) {
-                node_awn *new_awn = create_awn(*(*((g->adj_mat) + i) + j));
+            printf("%d ", *(*(matrix + i) + j));
+        }
+        printf("\n");
+    }
+}
 
-                new_awn->rel = find_vertex(g, j + 'A');
+void create_list(Graph *g, int number_of_vertices)
+{
+    for (int i = 0; i < number_of_vertices; i++) {
+        char vertex_id = 'A' + i;
+        addVertex(g, vertex_id);
+    }
 
-                if (new_awn->rel == NULL) {
-                    free(new_awn); 
-                    continue;
+    // Actualizar las listas de adyacencia
+     for (int i = 0; i < number_of_vertices; i++) {
+        for (int j = i; j < number_of_vertices; j++) {
+            int adjacency = *((*(g->adjacency_matrix + i)) + j);
+            if (adjacency) {
+                char from = 'A' + i;
+                char to = 'A' + j;
+
+                Vertex *from_vertex = findVertexByChar(g, from);
+                Vertex *to_vertex = findVertexByChar(g, to);
+
+                if (from_vertex != NULL && to_vertex != NULL) {
+                    addEdgeToVertex(from_vertex, to_vertex);
+
+                    if (g->graph_type == UNDIRECTED_GRAPH && i != j) {
+                        //grafos no dirigidos
+                        addEdgeToVertex(to_vertex, from_vertex);
+                    }
                 }
-                // Agrega la arista al vértice
-                *current_awn = new_awn;
-                current_awn = &((*current_awn)->next);
             }
         }
-
-        // Agrega el vértice a la lista de adyacencias
-        *current_vertex = vertex;
-        current_vertex = &((*current_vertex)->next);
     }
 }
+
 
 //main functions
 void read_adj_matrix(Graph *g)
 {
-    int number_of_vertices, adjacency;
+    int number_of_vertices;
     scanf("%d", &number_of_vertices);
-    g->num_vertices = number_of_vertices;
-    g->adj_mat = adjacency_matrix(number_of_vertices);
+    g->adjacency_matrix = adj_mat(number_of_vertices);
+    for (int i = 0; i < number_of_vertices; i++) {
+        for (int j = 0; j < number_of_vertices; j++)   {
+            scanf("%d", (*(g->adjacency_matrix + i) + j));
 
-    for (int i = 0; i < number_of_vertices; i++)    {
-        for (int j = 0; j < number_of_vertices; j++)    {
-            scanf("%d", &adjacency);
-            *(*((g->adj_mat) + i) + j) = adjacency;
-            // TODO: add edge between 'A'+i and 'A'+j
 #ifdef DEBUG
-            if (adjacency)  {
-                printf("Adding adjacency between %c and %c\n", 'A'+i, 'A'+j);
-            }
 #endif
         }
     }
-    adjacency_list_from_matrix(g);
+    create_list(g, number_of_vertices);
 }
 
-void print_adj_list()
+void print_adj_list(Graph *g)
 {
     printf("\nThe graph's adjacency list is:\n");
     printf("------------------------------\n");
-    // TODO: print adjacency list
+    Vertex* current_vertex = g->vertex_list;
+    while (current_vertex != NULL) {
+        printf("%c", current_vertex->id);
+        Edge* current_edge = current_vertex->edge_list;
+        while (current_edge != NULL) {
+            printf(" %c", current_edge->vertex->id);
+            current_edge = current_edge->next;
+        }
+        printf("\n");
+        current_vertex = current_vertex->next;
+    }
 }
 
 void print_dfs()
