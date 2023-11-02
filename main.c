@@ -50,7 +50,7 @@ int main(void)  {
                 remove_edge();
             break;
             case VERTEX_DEGREE:   
-                vertex_degree();
+                vertex_degree(g);
             break;
             case PRINT_DFS:
                 print_dfs(g);

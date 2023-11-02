@@ -79,6 +79,6 @@ void add_vertex();
 void add_edge();
 void remove_vertex();
 void remove_edge();
-void vertex_degree();
+void vertex_degree(Graph *g);
 
 #endif

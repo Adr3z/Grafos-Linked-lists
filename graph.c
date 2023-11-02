@@ -281,11 +281,21 @@ void remove_edge()
     // TODO: Find the vertices and remove the edge between them
 }
 
-void vertex_degree()
+void vertex_degree(Graph *g)
 {
     vertex_id_t vertex_id;
     scanf("\n%c", &vertex_id);
-    // TODO: calculate the vertex degree
+    Vertex *vertex = findVertexByChar(g, vertex_id);
+    if (vertex == NULL) {
+        printf("Vértice %c no encontrado en el grafo.\n", vertex_id);
+    }
+
     int degree = 0;
+    Edge *current_edge = vertex->edge_list;
+    while (current_edge != NULL) {
+        degree++;
+        current_edge = current_edge->next;
+    }
+
     printf("\nThe vertex %c has degree = %d\n", vertex_id, degree);
 }
