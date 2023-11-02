@@ -1,0 +1,45 @@
+The graph's adjacency list is:
+------------------------------
+A C D F
+B D E
+C A F
+D A B E F
+E B D
+F A C D
+G
+
+The vertex G has degree = 0
+
+The vertex A has degree = 3
+
+The vertex D has degree = 4
+
+Adding edge between the vertices G and E
+
+The vertex G has degree = 1
+
+Removing edge between the vertices A and D
+
+The vertex A has degree = 2
+
+The vertex D has degree = 3
+
+Removing edge between the vertices D and E
+
+The DFS from vertex with id = B is: {B D F A C E G}
+
+The BFS from vertex with id = B is: {B D E F G A C}
+
+Removing vertex with id = D
+
+Adding vertex with id = H
+
+The graph's adjacency list is:
+------------------------------
+A C F
+B E
+C A F
+E B G
+F A C
+G E
+H
