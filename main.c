@@ -41,7 +41,7 @@ int main(void)  {
                 add_vertex(g);
             break;
             case ADD_EDGE:      
-                add_edge();
+                add_edge(g);
             break;
             case REMOVE_VERTEX: 
                 remove_vertex();

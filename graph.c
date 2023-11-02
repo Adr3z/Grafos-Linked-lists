@@ -256,13 +256,31 @@ void add_vertex()
     // TODO: Add the vertex only if doesn't exist
 }
 
-void add_edge()
+void add_edge(Graph *g)
 {
     vertex_id_t vertex_u, vertex_v;
     scanf("\n%c %c", &vertex_u, &vertex_v);
     printf("\nAdding edge between the vertices %c and %c\n", vertex_u, vertex_v);
-    // TODO: Find the vertices and add them if don't exist yet
-    // TODO: Add edge between vertices
+    Vertex *u_vertex = findVertexByChar(g, vertex_u);
+    Vertex *v_vertex = findVertexByChar(g, vertex_v);
+
+    if (u_vertex != NULL && v_vertex != NULL) {
+        // Actualiza la matriz de adyacencia si es un grafo no dirigido
+        if (g->graph_type == UNDIRECTED_GRAPH) {
+            int u_index = vertex_u - 'A';
+            int v_index = vertex_v - 'A';
+            *((*(g->adjacency_matrix + u_index)) + v_index) = 1;
+            *((*(g->adjacency_matrix + v_index)) + u_index) = 1;
+        }
+
+        // Agrega la arista a los vértices
+        addEdgeToVertex(u_vertex, v_vertex);
+
+        // Si es un grafo no dirigido, agrega la arista en la otra dirección
+        if (g->graph_type == UNDIRECTED_GRAPH) {
+            addEdgeToVertex(v_vertex, u_vertex);
+        }
+    } 
 }
 
 void remove_vertex()
@@ -278,7 +296,6 @@ void remove_edge()
     vertex_id_t vertex_u, vertex_v;
     scanf("\n%c %c", &vertex_u, &vertex_v);
     printf("\nRemoving edge between the vertices %c and %c\n", vertex_u, vertex_v);
-    // TODO: Find the vertices and remove the edge between them
 }
 
 void vertex_degree(Graph *g)
