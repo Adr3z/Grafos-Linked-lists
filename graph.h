@@ -48,6 +48,15 @@ void free_awns( node_awn *a);
 //free vertex
 void free_vertex( node_vertex *v);
 
+//creates the adjacency list from the matrix
+node_vertex* create_adjacency_list(int **adj_mat, int num_vertices);
+
+//adds an edge to a vertex
+void add_awn(node_vertex *vertex, int w);
+
+//creates an edge
+node_awn *create_awn(int w);
+
 
 //main functions
 void read_adj_matrix();

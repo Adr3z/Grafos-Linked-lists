@@ -48,23 +48,30 @@ void free_vertex(node_vertex *v)
 
 void free_graph(Graph *g)
 {
-    for( int i = 0; i < g->num_vertices; i++){
-        free_vertex(g->list + i);
+    node_vertex *current = g->list;
+    while (current != NULL) {
+        node_vertex *tmp = current;
+        current = current->next; 
+        free_vertex(tmp); 
     }
+    
     free_mat(g->adj_mat, g->num_vertices);
-    free(g->list);
     free(g);
 }
 
 
 //main functions
-void read_adj_matrix()
+void read_adj_matrix(Graph *g)
 {
     int number_of_vertices, adjacency;
     scanf("%d", &number_of_vertices);
+    g->num_vertices = number_of_vertices;
+    g->adj_mat = adjacency_matrix(number_of_vertices);
+
     for (int i = 0; i < number_of_vertices; i++)    {
         for (int j = 0; j < number_of_vertices; j++)    {
             scanf("%d", &adjacency);
+            *(*((g->adj_mat) + i) + j) = adjacency;
             // TODO: add edge between 'A'+i and 'A'+j
 #ifdef DEBUG
             if (adjacency)  {

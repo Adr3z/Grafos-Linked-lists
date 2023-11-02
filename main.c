@@ -32,7 +32,7 @@ int main(void)  {
         scanf("%u", &op);
         switch (op) {
             case READ_ADJ_MATRIX:
-                read_adj_matrix();
+                read_adj_matrix(g);
             break;
             case PRINT_ADJ_LIST:   
                 print_adj_list();
