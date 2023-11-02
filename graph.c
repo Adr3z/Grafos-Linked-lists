@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "graph.h"
 
 Graph* createGraph(graph_type_t type) 
@@ -168,6 +169,22 @@ void create_list(Graph *g, int number_of_vertices)
     }
 }
 
+void dfs(Graph *graph, Vertex *start_vertex) 
+{
+    if (start_vertex == NULL || start_vertex->visited) {
+        return;
+    }
+
+    start_vertex->visited = 1; // Marcar el vértice como visitado
+    printf("%c ", start_vertex->id);
+
+    Edge *current_edge = start_vertex->edge_list;
+    while (current_edge != NULL) {
+        Vertex *neighbor = current_edge->vertex;
+        dfs(graph, neighbor); // Recursivamente visitar los vértices adyacentes no visitados
+        current_edge = current_edge->next;
+    }
+}
 
 //main functions
 void read_adj_matrix(Graph *g)
@@ -203,13 +220,23 @@ void print_adj_list(Graph *g)
     }
 }
 
-void print_dfs()
+void print_dfs(Graph *g)
 {
     vertex_id_t vertex_id;
     scanf("\n%c", &vertex_id);
     printf("\nThe DFS from vertex with id = %c is: {", vertex_id);
-    // TODO: print DFS from vertex id
-    printf("}\n");
+    Vertex *start_vertex = findVertexByChar(g, vertex_id);
+    if (start_vertex != NULL) {
+        Vertex *current_vertex = g->vertex_list;
+        while (current_vertex != NULL) {
+            current_vertex->visited = 0;
+            current_vertex = current_vertex->next;
+        }
+        dfs(g, start_vertex);
+        printf("}\n");
+    } else {
+        printf("Vértice %c no encontrado en el grafo.\n", vertex_id);
+    }
 }
 
 void print_bfs()

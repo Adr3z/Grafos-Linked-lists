@@ -23,7 +23,8 @@ typedef struct Edge {
 typedef struct Vertex {
     char id;                   // Identificador del vértice (puede ser una letra)
     struct Edge *edge_list;    // Cabecera de la lista de aristas
-    struct Vertex *next;      // Apuntador al siguiente vértice
+    struct Vertex *next; 
+    int visited;     // Apuntador al siguiente vértice
 } Vertex;
 
 // Estructura para representar el grafo
@@ -67,10 +68,12 @@ Edge *create_Edge(Vertex *rel);
 //generar lista de adyacencias
 void create_list(Graph *g, int number_of_vertices);
 
+void dfs(Graph *graph, Vertex *start_vertex);
+
 //main functions
 void read_adj_matrix(Graph *g);
 void print_adj_list(Graph *g);
-void print_dfs();
+void print_dfs(Graph *g);
 void print_bfs();
 void add_vertex();
 void add_edge();

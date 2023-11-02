@@ -38,7 +38,7 @@ int main(void)  {
                 print_adj_list(g);
             break;
             case ADD_VERTEX:    
-                add_vertex();
+                add_vertex(g);
             break;
             case ADD_EDGE:      
                 add_edge();
@@ -53,7 +53,7 @@ int main(void)  {
                 vertex_degree();
             break;
             case PRINT_DFS:
-                print_dfs();
+                print_dfs(g);
             break;
             case PRINT_BFS:
                 print_bfs();
