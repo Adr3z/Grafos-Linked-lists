@@ -11,17 +11,31 @@ Graph *init_graph( graph_type_t type)
     return g;
 }
 
-int **adjacency_matrix( int num_vertices)
-{
-    int **matrix = (int**)malloc(num_vertices * sizeof(int*));
-    for( int i = 0; i < num_vertices; i++){
-        *(matrix + i) = (int*)malloc(num_vertices*sizeof(int));
-        for(int j = 0; j < num_vertices; j++){
-            *(*(matrix + i) +j) = 0;
+int **adjacency_matrix(int num_vertices) {
+    int **matrix = (int **)malloc(num_vertices * sizeof(int *));
+    if (matrix) {
+        for (int i = 0; i < num_vertices; i++) {
+            matrix[i] = (int *)malloc(num_vertices * sizeof(int));
+            if (matrix[i]) {
+                for (int j = 0; j < num_vertices; j++) {
+                    matrix[i][j] = 0;
+                }
+            } else {
+                // Manejar error de asignación de memoria para matriz[i]
+                // Puede ser necesario liberar la memoria previamente asignada.
+                for (int k = 0; k < i; k++) {
+                    free(matrix[k]);
+                }
+                free(matrix);
+                return NULL; // Devolver NULL en caso de error
+            }
         }
+        return matrix;
     }
-    return matrix;
+    return NULL; // Devolver NULL en caso de error
 }
+
+
 
 void free_mat(int **mat, int num_vertices)
 {
@@ -59,6 +73,90 @@ void free_graph(Graph *g)
     free(g);
 }
 
+node_awn* create_awn(int weight) 
+{
+    node_awn *new_awn = (node_awn *)malloc(sizeof(node_awn));
+    if (new_awn) {
+        new_awn->w = weight;
+        new_awn->next = NULL;
+        new_awn->rel = NULL;
+    }
+    return new_awn;
+}
+
+node_vertex* create_vertex(char id) 
+{
+    node_vertex *new_vertex = (node_vertex *)malloc(sizeof(node_vertex));
+    if (new_vertex) {
+        new_vertex->id = id;
+        new_vertex->next = NULL;
+        new_vertex->awns = NULL;
+    }
+    return new_vertex;
+}
+
+void add_vertex_to_graph(Graph *g, node_vertex *new_vertex)
+ {
+    new_vertex->next = g->list;
+    g->list = new_vertex;
+    g->num_vertices++;
+}
+
+void add_awn_to_vertex(node_vertex *vertex, node_awn *new_awn) 
+{
+    new_awn->next = vertex->awns;
+    vertex->awns = new_awn;
+}
+
+node_vertex* find_vertex(Graph *g, char id) {
+    node_vertex* current = g->list;
+    
+    while (current != NULL) {
+        if (current->id == id) {
+            return current;
+        }
+        current = current->next;
+    }
+    
+    return NULL; 
+}
+
+void adjacency_list_from_matrix(Graph *g) {
+    int num_vertices = g->num_vertices;
+    g->list = NULL; 
+
+    node_vertex **current_vertex = &(g->list);
+
+    for (int i = 0; i < num_vertices; i++) {
+        node_vertex *vertex = find_vertex(g, i + 'A'); 
+
+        if (vertex == NULL) {
+            continue;
+        }
+
+        node_awn **current_awn = &(vertex->awns);
+
+        for (int j = 0; j < num_vertices; j++) {
+            if (*(*((g->adj_mat) + i) + j) != 0) {
+                node_awn *new_awn = create_awn(*(*((g->adj_mat) + i) + j));
+
+                new_awn->rel = find_vertex(g, j + 'A');
+
+                if (new_awn->rel == NULL) {
+                    free(new_awn); 
+                    continue;
+                }
+                // Agrega la arista al vértice
+                *current_awn = new_awn;
+                current_awn = &((*current_awn)->next);
+            }
+        }
+
+        // Agrega el vértice a la lista de adyacencias
+        *current_vertex = vertex;
+        current_vertex = &((*current_vertex)->next);
+    }
+}
 
 //main functions
 void read_adj_matrix(Graph *g)
@@ -80,6 +178,7 @@ void read_adj_matrix(Graph *g)
 #endif
         }
     }
+    adjacency_list_from_matrix(g);
 }
 
 void print_adj_list()

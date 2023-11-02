@@ -48,15 +48,24 @@ void free_awns( node_awn *a);
 //free vertex
 void free_vertex( node_vertex *v);
 
-//creates the adjacency list from the matrix
-node_vertex* create_adjacency_list(int **adj_mat, int num_vertices);
+//function to create an edge
+node_awn* create_awn(int weight) ;
 
-//adds an edge to a vertex
-void add_awn(node_vertex *vertex, int w);
+// Function to create a vertex
+node_vertex* create_vertex(char id);
 
-//creates an edge
-node_awn *create_awn(int w);
+// Function to add a vertex to the graph list
+void add_vertex_to_graph(Graph *g, node_vertex *new_vertex);
 
+
+// Function to add an edge to the adjacency list of a vertex
+void add_awn_to_vertex(node_vertex *vertex, node_awn *new_awn);
+
+// Function to generate an adjacency list from the graph matrix
+void adjacency_list_from_matrix(Graph *g);
+
+//finds a vertex by its id
+node_vertex* find_vertex(Graph *g, char id);
 
 //main functions
 void read_adj_matrix();
