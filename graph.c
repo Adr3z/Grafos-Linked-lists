@@ -275,12 +275,17 @@ void print_bfs()
     printf("}\n");
 }
 
-void add_vertex()
+void add_vertex(Graph *g)
 {
     vertex_id_t vertex_id;
     scanf("\n%c", &vertex_id);
     printf("\nAdding vertex with id = %c\n", vertex_id);
-    // TODO: Add the vertex only if doesn't exist
+     if (findVertexByChar(g, vertex_id) != NULL) {
+        printf("El vértice %c ya existe en el grafo.\n", vertex_id);
+        return;
+    }
+
+    addVertex(g, vertex_id);
 }
 
 void add_edge(Graph *g)

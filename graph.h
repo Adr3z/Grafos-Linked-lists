@@ -79,7 +79,7 @@ void read_adj_matrix(Graph *g);
 void print_adj_list(Graph *g);
 void print_dfs(Graph *g);
 void print_bfs();
-void add_vertex();
+void add_vertex(Graph *g);
 void add_edge(Graph *g);
 void remove_vertex();
 void remove_edge(Graph *g);
