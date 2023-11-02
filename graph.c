@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include "graph.h"
 
 Graph* createGraph(graph_type_t type) 
@@ -266,13 +265,12 @@ void print_dfs(Graph *g)
     }
 }
 
-void print_bfs()
+void print_bfs(Graph *g)
 {
     vertex_id_t vertex_id;
     scanf("\n%c", &vertex_id);
     printf("\nThe BFS from vertex with id = %c is: {", vertex_id);
-    // TODO: print BFS from vertex id
-    printf("}\n");
+    BFS(g, vertex_id);
 }
 
 void add_vertex(Graph *g)
@@ -315,12 +313,29 @@ void add_edge(Graph *g)
     } 
 }
 
-void remove_vertex()
+void remove_vertex(Graph *g)
 {
     vertex_id_t vertex_id;
     scanf("\n%c", &vertex_id);
     printf("\nRemoving vertex with id = %c\n", vertex_id);
-    // TODO: Remove vertex only if exists
+    Vertex *vertex_to_remove = findVertexByChar(g, vertex_id);
+    if (vertex_to_remove == NULL) {
+        printf("El vértice %c no se encontró en el grafo.\n", vertex_id);
+        return;
+    }
+
+    // Elimina todas las aristas que conectan con el vértice
+    Vertex *current_vertex = g->vertex_list;
+    while (current_vertex != NULL) {
+        if (current_vertex != vertex_to_remove) {
+            removeEdgeFromVertex(current_vertex, vertex_to_remove);
+        }
+        current_vertex = current_vertex->next;
+    }
+    //Eliminar el vértice
+
+    // Actualiza el número de vértices en el grafo
+    g->num_vertices--;
 }
 
 void remove_edge(Graph *g)

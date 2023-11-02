@@ -1,7 +1,6 @@
 #ifndef GRAPH_H
 #define GRAPH_H
 
-
 //Inicié el trabajo desde 0 para ver si podía arreglar la fuga de memoria y otros problemas 
 //Spoiler: no funcionó
 //Prácticamente todas las funciones son iguales pero con cambios en los nombres de variables
@@ -34,6 +33,17 @@ typedef struct Graph {
     Vertex *vertex_list;      // Lista de vértices
     int **adjacency_matrix;   // Matriz de adyacencia (solo para referencia)
 } Graph;
+
+//Estructuras para el bfs
+typedef struct QueueNode {
+    Vertex *vertex;
+    struct QueueNode *next;
+} QueueNode;
+
+typedef struct Queue {
+    QueueNode *front;
+    QueueNode *rear;
+} Queue;
 
 // Función para crear un grafo
 Graph* createGraph(graph_type_t type);
@@ -71,17 +81,31 @@ void create_list(Graph *g, int number_of_vertices);
 //recorrido dfs
 void dfs(Graph *graph, Vertex *start_vertex);
 
+//recorrido bfs
+void BFS(Graph *graph, char start_vertex_id);
+
 //eliminar una arista
 void removeEdgeFromVertex(Vertex *vertex, Vertex *neighbor);
+
+//Prototipos para el bfs
+//crear una cola
+Queue* createQueue();
+//revisar si la cola está vacía
+int isEmpty(Queue *queue);
+//agregar un elemento a la cola
+void enqueue(Queue *queue, Vertex *vertex);
+//eliminar un elemento de la cola
+Vertex* dequeue(Queue *queue);
+
 
 //main functions
 void read_adj_matrix(Graph *g);
 void print_adj_list(Graph *g);
 void print_dfs(Graph *g);
-void print_bfs();
+void print_bfs(Graph *g);
 void add_vertex(Graph *g);
 void add_edge(Graph *g);
-void remove_vertex();
+void remove_vertex(Graph *g);
 void remove_edge(Graph *g);
 void vertex_degree(Graph *g);
 

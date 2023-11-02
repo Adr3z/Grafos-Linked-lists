@@ -44,7 +44,7 @@ int main(void)  {
                 add_edge(g);
             break;
             case REMOVE_VERTEX: 
-                remove_vertex();
+                remove_vertex(g);
             break;
             case REMOVE_EDGE:   
                 remove_edge(g);
@@ -56,7 +56,7 @@ int main(void)  {
                 print_dfs(g);
             break;
             case PRINT_BFS:
-                print_bfs();
+                print_bfs(g);
             break;
         }
     }
