@@ -22,6 +22,7 @@ int main(void)  {
     graph_type_t graph_type;
     int number_of_operations;
     scanf("%u%d", &graph_type, &number_of_operations);
+    Graph *g = init_graph(graph_type);
 #ifdef DEBUG
     printf("The graph type is %s\n", 
         graph_type == DIRECTED_GRAPH ? "Directed" : "Undirected");
@@ -59,5 +60,6 @@ int main(void)  {
             break;
         }
     }
+    free_graph(g);
     return 0;
 }

@@ -1,6 +1,63 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "graph.h"
 
+Graph *init_graph( graph_type_t type)
+{
+    Graph *g = (Graph*)malloc(sizeof(Graph));
+    g->type = type;
+    g->list = NULL;
+    g->adj_mat = NULL;
+    return g;
+}
+
+int **adjacency_matrix( int num_vertices)
+{
+    int **matrix = (int**)malloc(num_vertices * sizeof(int*));
+    for( int i = 0; i < num_vertices; i++){
+        *(matrix + i) = (int*)malloc(num_vertices*sizeof(int));
+        for(int j = 0; j < num_vertices; j++){
+            *(*(matrix + i) +j) = 0;
+        }
+    }
+    return matrix;
+}
+
+void free_mat(int **mat, int num_vertices)
+{
+    for(int i = 0; i < num_vertices; i++){
+        free( *(mat + i));
+    }
+    free(mat);
+}
+
+void free_awns(node_awn *a)
+{
+    while( a != NULL){
+        node_awn *tmp = a;
+        a = a->next;
+        free(tmp);
+    }
+}
+
+void free_vertex(node_vertex *v)
+{
+    free_awns(v->awns);
+    free(v);
+}
+
+void free_graph(Graph *g)
+{
+    for( int i = 0; i < g->num_vertices; i++){
+        free_vertex(g->list + i);
+    }
+    free_mat(g->adj_mat, g->num_vertices);
+    free(g->list);
+    free(g);
+}
+
+
+//main functions
 void read_adj_matrix()
 {
     int number_of_vertices, adjacency;
