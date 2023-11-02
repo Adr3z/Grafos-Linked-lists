@@ -68,7 +68,11 @@ Edge *create_Edge(Vertex *rel);
 //generar lista de adyacencias
 void create_list(Graph *g, int number_of_vertices);
 
+//recorrido dfs
 void dfs(Graph *graph, Vertex *start_vertex);
+
+//eliminar una arista
+void removeEdgeFromVertex(Vertex *vertex, Vertex *neighbor);
 
 //main functions
 void read_adj_matrix(Graph *g);
@@ -78,7 +82,7 @@ void print_bfs();
 void add_vertex();
 void add_edge(Graph *g);
 void remove_vertex();
-void remove_edge();
+void remove_edge(Graph *g);
 void vertex_degree(Graph *g);
 
 #endif

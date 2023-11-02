@@ -47,7 +47,7 @@ int main(void)  {
                 remove_vertex();
             break;
             case REMOVE_EDGE:   
-                remove_edge();
+                remove_edge(g);
             break;
             case VERTEX_DEGREE:   
                 vertex_degree(g);
