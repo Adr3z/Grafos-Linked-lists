@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "graph.h"
+#include "linked_list.h"
 
 #define DEBUG
 

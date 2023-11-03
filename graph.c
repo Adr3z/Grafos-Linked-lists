@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "graph.h"
+#include "linked_list.h"
+#include "search.h"
 
 Graph* createGraph(graph_type_t type) 
 {
@@ -26,23 +28,45 @@ int **adj_mat(int num_vertices)
     return mat;
 }
 
-void free_vertex(Vertex *vertex)
+void printMatrix(int **matrix, int num_vertices) 
 {
-     while (vertex != NULL) {
-        Vertex* next_vertex = vertex->next;
-        Edge* current_edge = vertex->edge_list;
-        free_edges(current_edge);
-        free(vertex);
-        vertex = next_vertex;
+    for (int i = 0; i < num_vertices; i++) {
+        for (int j = 0; j < num_vertices; j++) {
+            printf("%d ", *(*(matrix + i) + j));
+        }
+        printf("\n");
     }
 }
 
-void free_edges(Edge *edge)
+void create_list(Graph *g, int number_of_vertices)
 {
-    while (edge != NULL) {
-        Edge* next_edge = edge->next;
-        free(edge);
-        edge = next_edge;
+    //Se añaden todos los vértices
+    for (int i = 0; i < number_of_vertices; i++) {
+        char vertex_id = 'A' + i;
+        addVertex(g, vertex_id);
+    }
+    
+    //Se añaden las aristas a las listas de los vértices
+    for (int i = 0; i < number_of_vertices; i++) {
+        for (int j = i; j < number_of_vertices; j++) {
+            int adjacency = *((*(g->adjacency_matrix + i)) + j);
+            if (adjacency) {
+                char from = 'A' + i;
+                char to = 'A' + j;
+
+                Vertex *from_vertex = findVertexById(g, from);
+                Vertex *to_vertex = findVertexById(g, to);
+
+                if (from_vertex != NULL && to_vertex != NULL) {
+                    addEdgeToVertex(from_vertex, to_vertex);
+
+                    if (g->graph_type == UNDIRECTED_GRAPH && i != j) {
+                        // se añade la arista para grafos no dirigidos
+                        addEdgeToVertex(to_vertex, from_vertex);
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -51,6 +75,8 @@ void destroyGraph(Graph* graph)
     if (graph == NULL) {
         return;
     }
+
+    //Liberar la matriz
     if (graph->adjacency_matrix != NULL) {
         for (int i = 0; i < graph->num_vertices; i++) {
             free(*(graph->adjacency_matrix + i));
@@ -66,269 +92,14 @@ void destroyGraph(Graph* graph)
     free(graph);
 }
 
-Vertex* findVertexByChar(Graph* graph, char id) 
-{
-    Vertex* current_vertex = graph->vertex_list;
-    while (current_vertex != NULL) {
-        if (current_vertex->id == id) {
-            return current_vertex;
-        }
-        current_vertex = current_vertex->next;
-    }
-    return NULL;  // El vértice no se encontró en el grafo
-}
-
-Vertex *create_Vertex(char id)
-{
-    Vertex* new_vertex = (Vertex*)malloc(sizeof(Vertex));
-    new_vertex->id = id;
-    new_vertex->edge_list = NULL;
-    new_vertex->next = NULL;
-    return new_vertex;
-}
-
-Edge *create_Edge(Vertex *rel)
-{
-    Edge* new_edge = (Edge*)malloc(sizeof(Edge));
-    new_edge->vertex = rel;
-    new_edge->next = NULL;
-    return new_edge;
-}
-
-void addEdgeToVertex(Vertex* vertex, Vertex* neighbor) 
-{
-
-     Edge* new_edge = create_Edge(neighbor);
-
-    // Agregar la arista al final de la lista de aristas del vértice
-    if (vertex->edge_list == NULL) {
-        vertex->edge_list = new_edge;
-    } else {
-        Edge* current_edge = vertex->edge_list;
-        while (current_edge->next != NULL) {
-            current_edge = current_edge->next;
-        }
-        current_edge->next = new_edge;
-    }
-}
-
-void addVertex(Graph* graph, char id) 
-{
-    Vertex* new_vertex = create_Vertex(id);
-
-    // Agregar el vértice al final de la lista de vértices
-    if (graph->vertex_list == NULL) {
-        graph->vertex_list = new_vertex;
-    } else {
-        Vertex* current_vertex = graph->vertex_list;
-        while (current_vertex->next != NULL) {
-            current_vertex = current_vertex->next;
-        }
-        current_vertex->next = new_vertex;
-    }
-
-    graph->num_vertices++;
-}
-
-void printMatrix(int** matrix, int num_vertices) 
-{
-    for (int i = 0; i < num_vertices; i++) {
-        for (int j = 0; j < num_vertices; j++) {
-            printf("%d ", *(*(matrix + i) + j));
-        }
-        printf("\n");
-    }
-}
-
-void create_list(Graph *g, int number_of_vertices)
-{
-    for (int i = 0; i < number_of_vertices; i++) {
-        char vertex_id = 'A' + i;
-        addVertex(g, vertex_id);
-    }
-
-    // Actualizar las listas de adyacencia
-     for (int i = 0; i < number_of_vertices; i++) {
-        for (int j = i; j < number_of_vertices; j++) {
-            int adjacency = *((*(g->adjacency_matrix + i)) + j);
-            if (adjacency) {
-                char from = 'A' + i;
-                char to = 'A' + j;
-
-                Vertex *from_vertex = findVertexByChar(g, from);
-                Vertex *to_vertex = findVertexByChar(g, to);
-
-                if (from_vertex != NULL && to_vertex != NULL) {
-                    addEdgeToVertex(from_vertex, to_vertex);
-
-                    if (g->graph_type == UNDIRECTED_GRAPH && i != j) {
-                        //grafos no dirigidos
-                        addEdgeToVertex(to_vertex, from_vertex);
-                    }
-                }
-            }
-        }
-    }
-}
-
-void dfs(Graph *graph, Vertex *start_vertex) 
-{
-    if (start_vertex == NULL || start_vertex->visited) {
-        return;
-    }
-
-    start_vertex->visited = 1; // Marcar el vértice como visitado
-    printf("%c ", start_vertex->id);
-
-    Edge *current_edge = start_vertex->edge_list;
-    while (current_edge != NULL) {
-        Vertex *neighbor = current_edge->vertex;
-        dfs(graph, neighbor); // Recursivamente visitar los vértices adyacentes no visitados
-        current_edge = current_edge->next;
-    }
-}
-
-void removeEdgeFromVertex(Vertex *vertex, Vertex *neighbor) 
-{
-    if (vertex == NULL || neighbor == NULL) {
-        return; // Verifica si los vértices son válidos
-    }
-
-    Edge *current_edge = vertex->edge_list;
-    Edge *prev_edge = NULL;
-
-    while (current_edge != NULL) {
-        if (current_edge->vertex == neighbor) {
-            // Encuentra la arista que conduce a la relacion y la elimina
-            if (prev_edge == NULL) {
-                // Si es la primera arista en la lista
-                vertex->edge_list = current_edge->next;
-            } else {
-                prev_edge->next = current_edge->next;
-            }
-            free(current_edge); // Libera la memoria de la arista eliminada
-            return;
-        }
-
-        prev_edge = current_edge;
-        current_edge = current_edge->next;
-    }
-}
-
-void removeIncomingEdges(Graph* graph, Vertex* target_vertex) 
-{
-    Vertex* current_vertex = graph->vertex_list;
-
-    while (current_vertex != NULL) {
-        if (current_vertex != target_vertex) {
-            // Elimina las aristas entrantes desde otros vértices al vértice objetivo
-            removeEdgeFromVertex(current_vertex, target_vertex);
-        }
-        current_vertex = current_vertex->next;
-    }
-}
-
-void BFS(Graph *graph, char start_vertex_id) 
-{
-    // Encuentra el vértice de inicio
-    Vertex *start_vertex = findVertexByChar(graph, start_vertex_id);
-    if (start_vertex == NULL) {
-        printf("El vértice de inicio no se encontró en el grafo.\n");
-        return;
-    }
-
-    // Inicializa una cola para el recorrido BFS
-    Queue *queue = createQueue();
-
-    // Marca todos los vértices como no visitados
-    Vertex *current_vertex = graph->vertex_list;
-    while (current_vertex != NULL) {
-        current_vertex->visited = 0;
-        current_vertex = current_vertex->next;
-    }
-
-    // Marca el vértice de inicio como visitado y encola
-    start_vertex->visited = 1;
-    enqueue(queue, start_vertex);
-
-    while (isEmpty(queue) == 0) {
-        // Desencola un vértice
-        Vertex *current_vertex = dequeue(queue);
-        printf("%c ", current_vertex->id);
-
-        // Procesa los vértices adyacentes no visitados
-        Edge *edge = current_vertex->edge_list;
-        while (edge != NULL) {
-            Vertex *neighbor = edge->vertex;
-            if (!neighbor->visited) {
-                neighbor->visited = 1;
-                enqueue(queue, neighbor);
-            }
-            edge = edge->next;
-        }
-    }
-
-    printf("}\n");
-
-    // Libera la cola
-    free(queue);
-}
-
-Vertex* dequeue(Queue *queue) 
-{
-    if (isEmpty(queue)) {
-        return NULL;
-    }
-
-    QueueNode *temp = queue->front;
-    Vertex *vertex = temp->vertex;
-
-    if (queue->front == queue->rear) {
-        queue->front = NULL;
-        queue->rear = NULL;
-    } else {
-        queue->front = queue->front->next;
-    }
-
-    free(temp);
-    return vertex;
-}
-
-void enqueue(Queue *queue, Vertex *vertex) 
-{
-    QueueNode *newNode = (QueueNode*)malloc(sizeof(QueueNode));
-    newNode->vertex = vertex;
-    newNode->next = NULL;
-
-    if (queue->rear == NULL) {
-        queue->front = newNode;
-        queue->rear = newNode;
-    } else {
-        queue->rear->next = newNode;
-        queue->rear = newNode;
-    }
-}
-
-int isEmpty(Queue *queue) {
-    if(queue->front == NULL){
-        return 1;
-    }
-    return 0;
-}
-
-Queue* createQueue() 
-{
-    Queue* queue = (Queue*)malloc(sizeof(Queue));
-    queue->front = NULL;
-    queue->rear = NULL;
-    return queue;
-}
 
 //main functions
 void read_adj_matrix(Graph *g)
 {
     int number_of_vertices;
     scanf("%d", &number_of_vertices);
+
+    //lectura de la matriz
     g->adjacency_matrix = adj_mat(number_of_vertices);
     for (int i = 0; i < number_of_vertices; i++) {
         for (int j = 0; j < number_of_vertices; j++)   {
@@ -338,6 +109,7 @@ void read_adj_matrix(Graph *g)
 #endif
         }
     }
+
     create_list(g, number_of_vertices);
 }
 
@@ -345,15 +117,18 @@ void print_adj_list(Graph *g)
 {
     printf("\nThe graph's adjacency list is:\n");
     printf("------------------------------\n");
+
     Vertex* current_vertex = g->vertex_list;
     while (current_vertex != NULL) {
         printf("%c", current_vertex->id);
+
         Edge* current_edge = current_vertex->edge_list;
         while (current_edge != NULL) {
             printf(" %c", current_edge->vertex->id);
             current_edge = current_edge->next;
         }
         printf("\n");
+
         current_vertex = current_vertex->next;
     }
 }
@@ -363,7 +138,8 @@ void print_dfs(Graph *g)
     vertex_id_t vertex_id;
     scanf("\n%c", &vertex_id);
     printf("\nThe DFS from vertex with id = %c is: {", vertex_id);
-    Vertex *start_vertex = findVertexByChar(g, vertex_id);
+
+    Vertex *start_vertex = findVertexById(g, vertex_id);
     if (start_vertex != NULL) {
         Vertex *current_vertex = g->vertex_list;
         while (current_vertex != NULL) {
@@ -382,7 +158,7 @@ void print_bfs(Graph *g)
     vertex_id_t vertex_id;
     scanf("\n%c", &vertex_id);
     printf("\nThe BFS from vertex with id = %c is: {", vertex_id);
-    BFS(g, vertex_id);
+    bfs(g, vertex_id);
 }
 
 void add_vertex(Graph *g)
@@ -390,7 +166,7 @@ void add_vertex(Graph *g)
     vertex_id_t vertex_id;
     scanf("\n%c", &vertex_id);
     printf("\nAdding vertex with id = %c\n", vertex_id);
-     if (findVertexByChar(g, vertex_id) != NULL) {
+     if (findVertexById(g, vertex_id) != NULL) {
         printf("El vértice %c ya existe en el grafo.\n", vertex_id);
         return;
     }
@@ -403,8 +179,9 @@ void add_edge(Graph *g)
     vertex_id_t vertex_u, vertex_v;
     scanf("\n%c %c", &vertex_u, &vertex_v);
     printf("\nAdding edge between the vertices %c and %c\n", vertex_u, vertex_v);
-    Vertex *u_vertex = findVertexByChar(g, vertex_u);
-    Vertex *v_vertex = findVertexByChar(g, vertex_v);
+
+    Vertex *u_vertex = findVertexById(g, vertex_u);
+    Vertex *v_vertex = findVertexById(g, vertex_v);
 
     if (u_vertex != NULL && v_vertex != NULL) {
         // Actualiza la matriz de adyacencia si es un grafo no dirigido
@@ -430,43 +207,35 @@ void remove_vertex(Graph *g)
     vertex_id_t vertex_id;
     scanf("\n%c", &vertex_id);
     printf("\nRemoving vertex with id = %c\n", vertex_id);
-    Vertex *vertex_to_remove = findVertexByChar(g, vertex_id);
+    Vertex *vertex_to_remove = findVertexById(g, vertex_id);
     if (vertex_to_remove == NULL) {
         printf("El vértice %c no se encontró en el grafo.\n", vertex_id);
         return;
     }
 
-    // Elimina todas las aristas que conectan con el vértice
     Vertex* current_vertex = g->vertex_list;
     Vertex* prev_vertex = NULL;
 
-    // Paso 1: Encuentra el vértice a eliminar y el vértice anterior
     while (current_vertex != NULL && current_vertex->id != vertex_id) {
         prev_vertex = current_vertex;
         current_vertex = current_vertex->next;
     }
 
     if (current_vertex == NULL) {
-        // El vértice no se encontró en el grafo
         return;
     }
 
-    // Paso 2: Elimina todas las aristas salientes del vértice
     free_edges(current_vertex->edge_list);
 
-    // Paso 3: Elimina las aristas entrantes de otros vértices
     removeIncomingEdges(g, current_vertex);
 
-    // Paso 4: Libera el vértice
     if (prev_vertex == NULL) {
-        // El vértice a eliminar es el primer vértice en la lista
         g->vertex_list = current_vertex->next;
     } else {
         prev_vertex->next = current_vertex->next;
     }
     free(current_vertex);
 
-    // Paso 5: Actualiza el número de vértices en el grafo
     g->num_vertices--;
 }
 
@@ -475,8 +244,8 @@ void remove_edge(Graph *g)
     vertex_id_t vertex_u, vertex_v;
     scanf("\n%c %c", &vertex_u, &vertex_v);
     printf("\nRemoving edge between the vertices %c and %c\n", vertex_u, vertex_v);
-    Vertex *u_vertex = findVertexByChar(g, vertex_u);
-    Vertex *v_vertex = findVertexByChar(g, vertex_v);
+    Vertex *u_vertex = findVertexById(g, vertex_u);
+    Vertex *v_vertex = findVertexById(g, vertex_v);
 
     if (u_vertex != NULL && v_vertex != NULL) {
         // Actualiza la matriz de adyacencia si es un grafo no dirigido
@@ -501,7 +270,7 @@ void vertex_degree(Graph *g)
 {
     vertex_id_t vertex_id;
     scanf("\n%c", &vertex_id);
-    Vertex *vertex = findVertexByChar(g, vertex_id);
+    Vertex *vertex = findVertexById(g, vertex_id);
     if (vertex == NULL) {
         printf("Vértice %c no encontrado en el grafo.\n", vertex_id);
     }
