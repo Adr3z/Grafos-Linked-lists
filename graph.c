@@ -60,7 +60,7 @@ void create_list(Graph *g, int number_of_vertices)
                 if (from_vertex != NULL && to_vertex != NULL) {
                     addEdgeToVertex(from_vertex, to_vertex);
 
-                    if (g->graph_type == UNDIRECTED_GRAPH && i != j) {
+                    if (g->graph_type == 1) {
                         // se añade la arista para grafos no dirigidos
                         addEdgeToVertex(to_vertex, from_vertex);
                     }
@@ -196,7 +196,7 @@ void add_edge(Graph *g)
         addEdgeToVertex(u_vertex, v_vertex);
 
         // Si es un grafo no dirigido, agrega la arista en la otra dirección
-        if (g->graph_type == UNDIRECTED_GRAPH) {
+        if (g->graph_type == 1) {
             addEdgeToVertex(v_vertex, u_vertex);
         }
     } 
@@ -249,7 +249,7 @@ void remove_edge(Graph *g)
 
     if (u_vertex != NULL && v_vertex != NULL) {
         // Actualiza la matriz de adyacencia si es un grafo no dirigido
-        if (g->graph_type == UNDIRECTED_GRAPH) {
+        if (g->graph_type == 1) {
             int u_index = vertex_u - 'A';
             int v_index = vertex_v - 'A';
             *((*(g->adjacency_matrix + u_index)) + v_index) = 0;
@@ -260,7 +260,7 @@ void remove_edge(Graph *g)
         removeEdgeFromVertex(u_vertex, v_vertex);
 
         // Si es un grafo no dirigido, elimina la arista en la otra dirección
-        if (g->graph_type == UNDIRECTED_GRAPH) {
+        if (g->graph_type == 1) {
             removeEdgeFromVertex(v_vertex, u_vertex);
         }
     }

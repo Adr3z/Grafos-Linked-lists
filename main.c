@@ -17,7 +17,7 @@ typedef enum op_enum {
 } operation_t;
 
 int main(void)  {
-    freopen("input.txt", "rt", stdin);
+    freopen("input2.txt", "rt", stdin);
     //freopen("output.txt", "rt", stdout);
 
     graph_type_t graph_type;
