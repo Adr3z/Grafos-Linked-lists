@@ -87,6 +87,9 @@ void BFS(Graph *graph, char start_vertex_id);
 //eliminar una arista
 void removeEdgeFromVertex(Vertex *vertex, Vertex *neighbor);
 
+
+void removeIncomingEdges(Graph* graph, Vertex* target_vertex);
+
 //Prototipos para el bfs
 //crear una cola
 Queue* createQueue();

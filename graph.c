@@ -215,6 +215,18 @@ void removeEdgeFromVertex(Vertex *vertex, Vertex *neighbor)
     }
 }
 
+void removeIncomingEdges(Graph* graph, Vertex* target_vertex) 
+{
+    Vertex* current_vertex = graph->vertex_list;
+
+    while (current_vertex != NULL) {
+        if (current_vertex != target_vertex) {
+            // Elimina las aristas entrantes desde otros vértices al vértice objetivo
+            removeEdgeFromVertex(current_vertex, target_vertex);
+        }
+        current_vertex = current_vertex->next;
+    }
+}
 
 void BFS(Graph *graph, char start_vertex_id) 
 {
@@ -425,16 +437,36 @@ void remove_vertex(Graph *g)
     }
 
     // Elimina todas las aristas que conectan con el vértice
-    Vertex *current_vertex = g->vertex_list;
-    while (current_vertex != NULL) {
-        if (current_vertex != vertex_to_remove) {
-            removeEdgeFromVertex(current_vertex, vertex_to_remove);
-        }
+    Vertex* current_vertex = g->vertex_list;
+    Vertex* prev_vertex = NULL;
+
+    // Paso 1: Encuentra el vértice a eliminar y el vértice anterior
+    while (current_vertex != NULL && current_vertex->id != vertex_id) {
+        prev_vertex = current_vertex;
         current_vertex = current_vertex->next;
     }
-    //Eliminar el vértice
 
-    // Actualiza el número de vértices en el grafo
+    if (current_vertex == NULL) {
+        // El vértice no se encontró en el grafo
+        return;
+    }
+
+    // Paso 2: Elimina todas las aristas salientes del vértice
+    free_edges(current_vertex->edge_list);
+
+    // Paso 3: Elimina las aristas entrantes de otros vértices
+    removeIncomingEdges(g, current_vertex);
+
+    // Paso 4: Libera el vértice
+    if (prev_vertex == NULL) {
+        // El vértice a eliminar es el primer vértice en la lista
+        g->vertex_list = current_vertex->next;
+    } else {
+        prev_vertex->next = current_vertex->next;
+    }
+    free(current_vertex);
+
+    // Paso 5: Actualiza el número de vértices en el grafo
     g->num_vertices--;
 }
 
